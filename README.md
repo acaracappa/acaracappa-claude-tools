@@ -11,11 +11,11 @@ Five development-layer tools and three feedback-layer tools, selected to work to
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
+┌───────────────────────────────────────────────────────────────────────────┐
 │                           YOUR PROJECT REPO                               │
-│                                                                            │
-│  DEVELOPMENT LAYER (active during sessions)                                │
-│  ┌──────────────┐ ┌──────────────┐ ┌────────────┐ ┌───────────┐          │
+│                                                                           │
+│  DEVELOPMENT LAYER (active during sessions)                               │
+│  ┌───────────────┐ ┌──────────────┐ ┌────────────┐ ┌───────────┐          │
 │  │  SUPERPOWERS  │ │  CLAUDE-MEM  │ │  CONTEXT7  │ │TRAIL OF   │          │
 │  │  (Skills &    │ │  (Memory &   │ │  (Live     │ │  BITS     │          │
 │  │   Workflow)   │ │   Context)   │ │   Docs)    │ │(Security) │          │
@@ -30,15 +30,15 @@ Five development-layer tools and three feedback-layer tools, selected to work to
 │  │                     CLAUDE CODE CLI / SDK                        │     │
 │  │   (hooks merge, skills stack, MCP lazy-loads, security on-demand)│     │
 │  └──────────────────────────────────────────────────────────────────┘     │
-│                                                                            │
-│  FEEDBACK LAYER (runs between sessions)                                    │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                       │
-│  │  TRANSCRIPTS  │ │ CLAUDE DIARY │ │  PLUNDERER   │                       │
-│  │  (Preserve)   │ │  (Observe)   │ │  (Mine)      │                       │
-│  │  JSONL → HTML │ │  /diary +    │ │  Prompt      │                       │
-│  │  weekly cron  │ │  /reflect    │ │  patterns    │                       │
-│  └──────────────┘ └──────────────┘ └──────────────┘                       │
-└──────────────────────────────────────────────────────────────────────────┘
+│                                                                           │
+│  FEEDBACK LAYER (runs between sessions)                                   │
+│  ┌───────────────┐ ┌──────────────┐ ┌──────────────┐                      │
+│  │  TRANSCRIPTS  │ │ CLAUDE DIARY │ │  PLUNDERER   │                      │
+│  │  (Preserve)   │ │  (Observe)   │ │  (Mine)      │                      │
+│  │  JSONL → HTML │ │  /diary +    │ │  Prompt      │                      │
+│  │  weekly cron  │ │  /reflect    │ │  patterns    │                      │
+│  └───────────────┘ └──────────────┘ └──────────────┘                      │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Tool Summary
