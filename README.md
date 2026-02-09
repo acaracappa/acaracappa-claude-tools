@@ -122,7 +122,6 @@ This toolkit integrates the following open source projects. All credit to their 
 | **Context7** | Upstash | [github.com/upstash/context7](https://github.com/upstash/context7) | Apache 2.0 |
 | **Context7 Plugin** | Context7 | [github.com/context7/context7-marketplace](https://github.com/context7/context7-marketplace) | — |
 | **Trail of Bits Skills** | Trail of Bits | [github.com/trailofbits/skills](https://github.com/trailofbits/skills) | AGPL-3.0 |
-| **Ralph** | Frank Bria | [github.com/frankbria/ralph-claude-code](https://github.com/frankbria/ralph-claude-code) | MIT |
 
 ### Feedback Layer
 

@@ -18,7 +18,6 @@
    - `curl http://localhost:37777/api/readiness` returns JSON
    - `claude mcp list` shows Context7 connected
    - `/plugin list` shows Trail of Bits skills
-   - `ralph --status` shows version
 3. Start a fresh Claude Code session and type:
    ```
    Do you have superpowers? What do you remember from past sessions?
@@ -247,71 +246,72 @@ You instinctively ask for a security review after modifying auth, external API, 
 
 ---
 
-## Level 6: Ralph — First Autonomous Run
+## Level 6: Agent Teams — First Autonomous Run
 
-**Goal:** Successfully complete one unattended Ralph loop (5–10 iterations) that ships working code.
+**Goal:** Successfully spawn and complete one multi-agent autonomous session that ships working code.
 
 ### Do This
 
-1. **Start small.** Pick something mechanical:
-   - "Add unit tests for all functions in `pkg/utils/`"
-   - "Create CRUD API endpoints for the users model"
-   - "Add error handling and logging to all external API calls"
+1. **Start small.** Pick something mechanical with 2-3 semi-independent components:
+   - "Add comprehensive unit tests: pkg/utils, pkg/handlers, pkg/models"
+   - "Create CRUD API endpoints + database migrations + integration tests"
+   - "Add error handling + structured logging + metrics to three API layers"
 
-2. **Set up the task:**
+2. **Set up the task** via brainstorming:
    ```bash
-   cd ~/projects/myapp
-   ralph-setup add-tests
-   # Edit .ralph/PROMPT.md with clear, specific requirements
-   # Edit .ralph/fix_plan.md with a checklist of tasks
+   claude code ~/projects/myapp
    ```
 
-3. **Configure conservatively:**
-   ```bash
-   # .ralphrc
-   CLAUDE_MAX_CALLS_PER_HOUR=20
-   CLAUDE_TIMEOUT_MINUTES=15
-   MAX_CONSECUTIVE_TEST_LOOPS=3
+   In Claude Code:
+   ```
+   I need to [task].
+
+   It involves these semi-independent components:
+   - Component A: [description]
+   - Component B: [description]
+   - Component C: [description]
+
+   Component B depends on Component A output.
+   Component C depends on Component B output.
+
+   Spawn 3 agents to build this in parallel (Agent C waits for Agent B,
+   which waits for Agent A).
    ```
 
-4. **Run with monitoring:**
-   ```bash
-   # Terminal 1
-   ralph --monitor
-
-   # Terminal 2 (optional)
-   ralph-monitor
-   ```
-
-5. **Watch the first 2–3 iterations** before walking away. Verify:
-   - Is Superpowers' methodology activating?
+3. **Watch the first agent** before walking away. Verify:
+   - Is Superpowers' methodology activating (TDD first)?
    - Is Claude-Mem injecting relevant context?
    - Is Context7 being used for library references?
-   - Are Trail of Bits skills firing on security-sensitive files?
+   - Are Trail of Bits skills firing on security-sensitive code?
 
-6. **After completion**, review:
-   - `git log` for commits made during the run
-   - `.ralph/fix_plan.md` — all items should be `[x]`
-   - Test results — all passing?
-   - Claude-Mem web viewer — what was captured?
+4. **After all agents complete**, review:
+   - `git log` for commits made by agents
+   - Test output — all tests passing?
+   - Claude-Mem web viewer — what was captured about the multi-agent run?
+   - Any security findings from Trail of Bits?
+
+5. **Integrate the work:**
+   - Merge branches created by each agent
+   - Run integration tests across all components
+   - Verify no conflicts or version mismatches
 
 ### Success Criteria
 
-- [ ] Completed 5+ Ralph iterations without manual intervention
-- [ ] All fix_plan.md items marked complete
-- [ ] Code compiles and tests pass
-- [ ] Ralph exited cleanly (exit detection worked)
-- [ ] Can read ralph-monitor output and understand what happened
+- [ ] Spawned 3+ agents that ran autonomously
+- [ ] All agents completed their tasks with passing tests
+- [ ] Code compiles and integration tests pass
+- [ ] Agents reported completion with evidence
+- [ ] Can explain what each agent did and why it worked
 
 ### You've leveled up when...
 
-You trust Ralph enough to start a run, go make dinner, and come back to merged code. But you still review before pushing.
+You trust Agent Teams enough to spawn them for a complex feature, check back an hour later, and find merge-ready code. You understand component decomposition and can decide when to spawn agents vs. do work manually.
 
 ---
 
 ## Level 7: Prompt Engineering for the Stack
 
-**Goal:** Write prompts, CLAUDE.md files, and Ralph configs that get maximum leverage from all five tools.
+**Goal:** Write prompts, CLAUDE.md files, and agent team spawning patterns that get maximum leverage from all five tools.
 
 ### Do This
 
@@ -328,23 +328,31 @@ You trust Ralph enough to start a run, go make dinner, and come back to merged c
    - Use Context7 for all library API references — don't guess
    - Run Trail of Bits sharp-edges on code touching [sensitive paths]
    - Use differential-review on all PRs touching security-sensitive paths
+   - For multi-component features >3 hours: spawn agent teams
 
    ## Conventions
    - [your language/framework conventions]
 
    ## Security-Sensitive Paths (always trigger Trail of Bits review)
    - [list your sensitive directories]
+
+   ## Agent Team Heuristics
+   - Use agent teams when: feature spans 2-4 semi-independent components
+   - Don't spawn agents when: single component, <3 hours, exploring design
+   - Typical parallelism gains: 2 agents = 1.5x faster, 3 agents = 2.5x faster
    ```
 
-2. **Optimize .ralph/PROMPT.md** for autonomous runs:
-   - Be specific about what "done" means
+2. **Optimize agent team spawning prompts:**
+   - Be specific about component boundaries and interfaces
    - Reference which test suites must pass
-   - Tell Claude which Context7 library IDs to use
+   - Tell agents which Context7 library IDs to use
    - Set explicit boundaries ("do NOT modify config/production.yaml")
+   - Define dependency DAG (which agent waits for whom)
+   - See AGENT-TEAMS.md Part 9 for template
 
 3. **Write better brainstorming prompts:**
    Instead of: "Add WebSocket support"
-   Write: "Add WebSocket support for real-time updates. The API uses gin. The frontend connects from React. Handle reconnection, heartbeats, and graceful shutdown."
+   Write: "Add WebSocket support for real-time updates. The API uses gin. The frontend connects from React. Handle reconnection, heartbeats, and graceful shutdown. Should this be 2-3 agents or single session?"
 
 4. **Learn Context7 prompt patterns that work:**
    - ❌ "How do I use tokio?" (too vague)
@@ -352,61 +360,95 @@ You trust Ralph enough to start a run, go make dinner, and come back to merged c
 
 5. **Shape Claude-Mem deliberately** at session end:
    ```
-   Before we end: remember that we decided to use tokio::sync::mpsc
-   with a buffer of 1000, and we chose JSON over protobuf for the
-   wire format because the frontend team prefers it.
+   Before we end: remember that we:
+   - Decided to use tokio::sync::mpsc with buffer 1000
+   - Chose JSON over protobuf for wire format
+   - Successfully used agent teams on this feature
+   - This pattern should apply to similar multi-component features
    ```
 
 ### Success Criteria
 
 - [ ] CLAUDE.md written and tested (Claude references it during sessions)
-- [ ] .ralph/PROMPT.md that leads to successful autonomous runs
-- [ ] Brainstorming prompts consistently trigger deeper exploration
+- [ ] Agent team spawning patterns with clear success criteria
+- [ ] Brainstorming prompts consistently trigger component decomposition thinking
 - [ ] Context7 queries return targeted, useful documentation
-- [ ] Deliberate session-end summaries improve next-session context
+- [ ] Deliberate session-end summaries capture multi-agent decisions
 
 ### You've leveled up when...
 
-You think about prompts as infrastructure, not throwaway text. Your CLAUDE.md and Ralph configs are versioned in git and evolve with the project.
+You think about prompts as infrastructure. Your CLAUDE.md includes heuristics for when to spawn agents. Each new feature, you automatically consider: "2-3 components? Time to spawn agents."
 
 ---
 
 ## Level 8: Multi-Component Orchestration
 
-**Goal:** Run parallel Ralph instances across components while maintaining coherence through Claude-Mem.
+**Goal:** Spawn and coordinate parallel agent teams across components while maintaining coherence through Claude-Mem.
 
 ### Do This
 
-1. **Create component-specific Ralph configs** for different parts of a polyglot or multi-service project
+1. **Pick a real feature** spanning 3+ independent or semi-ordered components
+   - Example: Build an observability platform with metrics collector, dashboard, and alerting engine
+   - Components can be built in parallel (independent) or sequenced (dependent)
 
-2. **Run parallel Ralph instances:**
-   ```bash
-   # Terminal 1: API layer
-   cd ~/project/api && ralph --monitor
+2. **Decompose into agent team structure:**
+   ```
+   AGENT 1: Metrics Collector
+     - Implement Prometheus endpoint
+     - Write integration tests
+     - No dependencies (start immediately)
 
-   # Terminal 2: Core engine
-   cd ~/project/engine && ralph --monitor
+   AGENT 2: Dashboard UI (depends on Agent 1)
+     - Wait for Agent 1's API spec
+     - Build React dashboard
+     - Consume /metrics endpoint
 
-   # Terminal 3: ML pipeline
-   cd ~/project/ml && ralph --monitor
+   AGENT 3: Alerting Engine (depends on Agent 2)
+     - Wait for dashboard to define alert schema
+     - Implement rule evaluation
+     - Send notifications
    ```
 
-3. **Observe cross-component memory:** After one Ralph run finishes, start a session in a different component directory. Does Claude-Mem inject relevant context about the other component's changes?
+3. **Spawn the agent team:**
+   ```bash
+   claude code ~/project
+   ```
 
-4. **Handle cross-component dependencies:** Run dependent components in sequence (e.g., establish an interface first, then build the consumer)
+   In Claude Code:
+   ```
+   I'm building an observability platform with three components.
 
-5. **Coordinate via git:** After parallel runs complete, merge branches and resolve interface conflicts
+   [Provide component descriptions and dependency DAG]
+
+   Spawn 3 agents in parallel (respecting dependencies).
+   Use Agent Teams patterns from AGENT-TEAMS.md.
+   All agents use Context7, Trail of Bits, and TDD.
+   Report completion with evidence (test results, git commits).
+   ```
+
+4. **Monitor cross-component coherence:**
+   - After Agent 1 finishes, Agent 2 uses Agent 1's output correctly
+   - After Agent 2 finishes, Agent 3 integrates against Agent 2's interface
+   - Claude-Mem captures decisions that inform other agents
+
+5. **Coordinate integration:**
+   - All agents finish
+   - Merge branches created by each agent
+   - Run end-to-end tests across all components
+   - Verify no version/interface conflicts
 
 ### Success Criteria
 
-- [ ] Successfully ran 2+ Ralph instances in parallel on different components
-- [ ] Cross-component changes are coherent
-- [ ] Git history shows clean, parallel development branches
-- [ ] Claude-Mem context from one component informs work in another
+- [ ] Spawned 3+ agents with explicit dependencies
+- [ ] Agents respected ordering (dependent agents waited for their inputs)
+- [ ] Cross-component changes are coherent (no version conflicts)
+- [ ] Git history shows clean, parallel agent-generated commits
+- [ ] Claude-Mem captured decisions that informed other agents
+- [ ] End-to-end tests pass across all components
 
 ### You've leveled up when...
 
-You routinely break sprints into parallel Ralph runs and merge the results. Your throughput on multi-component features is 3–5x what it was doing them serially.
+You routinely break complex features into component architectures and spawn agent teams. You measure parallelism gains and understand when agent spawning is worth the coordination overhead.
 
 ---
 
@@ -416,7 +458,7 @@ You routinely break sprints into parallel Ralph runs and merge the results. Your
 
 ### Do This
 
-1. **Debug a stuck Ralph loop:** Create a fix_plan.md with an impossible task, watch Ralph iterate, identify the stuck point, intervene mid-run
+1. **Debug stuck agent teams:** Spawn agents with conflicting requirements, observe how they handle it, learn recovery patterns
 
 2. **Debug Claude-Mem issues:**
    ```bash
@@ -440,12 +482,12 @@ You routinely break sprints into parallel Ralph runs and merge the results. Your
 
 ### Success Criteria
 
-- [ ] Identified and resolved a stuck Ralph loop
+- [ ] Identified and resolved stuck agent coordination
 - [ ] Debugged a Claude-Mem worker issue
 - [ ] Handled a Context7 outage gracefully
 - [ ] Caught Superpowers skill refusal and corrected it
 - [ ] Diagnosed a Trail of Bits skill not activating and fixed it
-- [ ] Managed context exhaustion in a long session
+- [ ] Managed context exhaustion in a long multi-agent session
 
 ### You've leveled up when...
 
@@ -485,16 +527,14 @@ When something goes wrong, you diagnose it in under 2 minutes. You have a mental
 
 3. **Optimize token budget:** Profile typical sessions, adjust Claude-Mem's `maxTokens` based on actual usage
 
-4. **Build Ralph templates** for recurring task types
-
-5. **Create a pre-flight check script** (see `FEEDBACK-LOOP.md` for a comprehensive version)
+4. **Create a pre-flight check script** (see `FEEDBACK-LOOP.md` for a comprehensive version)
 
 ### Success Criteria
 
 - [ ] Custom hook running and triggering on relevant events
 - [ ] Custom skill written, tested, and used during sessions
 - [ ] Token budget optimized based on measured usage patterns
-- [ ] Ralph template for a recurring task type
+- [ ] Agent team spawning heuristics documented in CLAUDE.md
 - [ ] Pre-flight check script works reliably
 
 ### You've leveled up when...
@@ -515,7 +555,7 @@ Complete this scenario end-to-end in a single day:
 
 1. **Morning (Interactive, 2 hours):** Design with Superpowers brainstorming, Context7 for current API docs, Claude-Mem for past architectural decisions. Produce a design document and implementation plan.
 
-2. **Midday (Autonomous, 3–4 hours):** Set up parallel Ralph instances per component. Launch with `ralph --monitor`. Go do something else.
+2. **Midday (Autonomous, 3–4 hours):** Spawn agent teams for each component. Agents run in parallel within Claude. Go do something else.
 
 3. **Afternoon (Security Review + Integration, 2 hours):** Review output, run Trail of Bits differential-review on each component, merge branches, run integration tests, use Superpowers verification for final check.
 
@@ -527,13 +567,13 @@ Complete this scenario end-to-end in a single day:
 - [ ] **Explain** each tool's architecture, hook points, and failure modes
 - [ ] **Design** features using full Superpowers methodology without skipping steps
 - [ ] **Secure** code using Trail of Bits skills integrated into workflow
-- [ ] **Run** parallel Ralph instances across 3+ components and merge coherent results
+- [ ] **Spawn** agent teams across 3+ components and merge coherent results
 - [ ] **Debug** any tool failure in under 2 minutes
 - [ ] **Extend** the stack with custom hooks, skills, and configurations
 - [ ] **Optimize** token budgets based on measured session profiles
 - [ ] **Teach** someone else to get from Level 0 to Level 6 in a week
 - [ ] **Ship** multi-component features 3–5x faster than without the stack
-- [ ] **Know** when NOT to use a tool
+- [ ] **Know** when NOT to use a tool (and when agent teams aren't the right choice)
 
 ### The Meta-Skill
 
@@ -544,7 +584,7 @@ The real Level 11 insight is **delegation calibration** — knowing how much aut
 | **Full manual** | Exploring new territory, sensitive code | Superpowers + Context7 + Trail of Bits |
 | **Supervised auto** | Known problem patterns, good test coverage | All five, you watching |
 | **Unattended** | Mechanical tasks, well-specified work | All five, you elsewhere |
-| **Parallel batch** | Multi-component sprints | Multiple Ralph instances |
+| **Agent teams** | Multi-component sprints, clear component boundaries | Parallel agents in one session |
 
 The master doesn't use more tools. The master uses the right tools at the right moment.
 
@@ -565,10 +605,10 @@ Implementation:
   > (Trail of Bits fires on security-sensitive changes)
   > (Claude-Mem captures observations)
 
-Autonomous work:
-  $ ralph-setup [task]          # Define the work
-  $ ralph --monitor             # Let it run
-  $ ralph-monitor               # Check progress
+Autonomous multi-component work:
+  $ claude code ~/project       # Start Claude Code session
+  > Spawn N agents: [design]    # Define agents and dependencies
+  > [Agents run autonomously]   # Let them work in parallel
 
 Security review:
   > Review my last commit with differential-review
